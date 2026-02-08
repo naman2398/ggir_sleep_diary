@@ -16,11 +16,11 @@ from convert_sleeplog import convert_sleeplog_in_memory, sanitise_id
 # ── Page config ──────────────────────────────────────────────────────────────
 st.set_page_config(
     page_title="GGIR Sleep Diary Converter",
-    page_icon="🛏️",
+    page_icon="",
     layout="wide",
 )
 
-st.title("🛏️ GGIR Sleep Diary Converter")
+st.title("GGIR Sleep Diary Converter")
 st.markdown(
     "Convert a long-format sleep diary CSV into the "
     "[GGIR advanced sleeplog](https://wadpac.github.io/GGIR/articles/"
@@ -65,9 +65,9 @@ if uploaded_file is not None:
     st.info(f"**Participant:** `{participant_id}`")
 
     # ── Segment builder ──────────────────────────────────────────────────
-    st.header("📋 Define Recording Segments")
+    st.header("Define Data Segments")
     st.markdown(
-        "Each segment corresponds to an accelerometer recording file. "
+        "Each segment/file corresponds to an accelerometer recording file. "
         "Provide the **file name** (e.g., the `.GT3X` filename) and the "
         "**date range** it covers."
     )
@@ -119,40 +119,6 @@ if uploaded_file is not None:
                     st.session_state.segments.pop(i)
                     st.rerun()
 
-        # --- Export segments JSON ---
-        seg_json_str = json.dumps(st.session_state.segments, indent=2)
-        st.download_button(
-            "⬇️ Export segments.json",
-            data=seg_json_str,
-            file_name="segments.json",
-            mime="application/json",
-        )
-
-        # --- Import segments JSON ---
-        with st.expander("📂 Import segments from JSON"):
-            json_upload = st.file_uploader(
-                "Upload segments.json",
-                type=["json"],
-                key="json_upload",
-            )
-            if json_upload is not None:
-                try:
-                    imported = json.load(json_upload)
-                    if isinstance(imported, list) and all(
-                        "id" in s and "start_date" in s and "end_date" in s
-                        for s in imported
-                    ):
-                        st.session_state.segments = imported
-                        st.success(f"Imported {len(imported)} segments.")
-                        st.rerun()
-                    else:
-                        st.error(
-                            "Invalid JSON. Expected a list of objects with "
-                            "'id', 'start_date', 'end_date' keys."
-                        )
-                except json.JSONDecodeError:
-                    st.error("Could not parse JSON file.")
-
         # --- Clear all segments ---
         if st.button("🧹 Clear all segments"):
             st.session_state.segments = []
@@ -163,7 +129,7 @@ if uploaded_file is not None:
 
     # ── Convert ──────────────────────────────────────────────────────────
     st.divider()
-    st.header("🚀 Convert")
+    st.header("Convert")
 
     if not st.session_state.segments:
         st.warning("Add at least one segment before converting.")
@@ -190,7 +156,7 @@ if uploaded_file is not None:
 
     # ── Results ──────────────────────────────────────────────────────────
     if "result_df" in st.session_state and st.session_state.result_df is not None:
-        st.header("📊 Result")
+        st.header("Result")
         st.dataframe(st.session_state.result_df, use_container_width=True)
 
         # Build filename
